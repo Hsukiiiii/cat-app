@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>电子养成猫猫 · 马卡龙小窝</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; min-height: 100vh; }
+    body { background: linear-gradient(145deg, #f9d9e3 0%, #fce4ec 100%); display: flex; align-items: center; justify-content: center; padding: 12px; overflow: hidden; transition: padding 0.2s; }
+    .phone-frame { width: 100%; max-width: 380px; height: min(720px, 88vh); height: min(720px, 88dvh); background: #ffeef5; border-radius: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 8px #fff5fa, 0 0 0 12px #ffd9e6; overflow: hidden; display: flex; flex-direction: column; position: relative; transition: border-radius 0.25s, box-shadow 0.25s; }
+    .status-bar { padding: 12px 18px 6px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #b38b9a; font-weight: 600; letter-spacing: 0.5px; flex-shrink: 0; }
+    .save-mini-btn { background: transparent; border: none; font-size: 16px; cursor: pointer; padding: 0 6px; line-height: 1; }
+    .save-mini-btn:active { transform: scale(0.85); }
+    .stats-panel { background: #ffe2ed; margin: 0 12px 8px; padding: 10px 12px; border-radius: 28px; box-shadow: inset 0 1px 4px rgba(255,255,255,0.8), 0 4px 10px rgba(255,182,203,0.3); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; border: 1px solid #ffc1d4; flex-shrink: 0; }
+    .stat-item { display: flex; align-items: center; gap: 4px; background: #fff9fc; padding: 4px 10px 4px 8px; border-radius: 40px; font-size: 13px; font-weight: 600; color: #9b6b7e; border: 1px solid #ffd0df; }
+    .stat-icon { font-size: 15px; }
+    .stat-value { min-width: 28px; text-align: center; color: #b34e6b; background: #ffeef4; padding: 2px 4px; border-radius: 20px; font-size: 12px; }
+    .chat-container { flex: 1; overflow-y: auto; padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 8px; background: #fff0f6; scroll-behavior: smooth; position: relative; -webkit-overflow-scrolling: touch; }
+    .chat-container::-webkit-scrollbar { width: 4px; }
+    .chat-container::-webkit-scrollbar-thumb { background: #fbb6ce; border-radius: 10px; }
+    .message { display: flex; align-items: flex-end; gap: 6px; max-width: 85%; animation: fadeIn 0.3s ease; }
+    .message.cat { align-self: flex-start; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; background: #ffe2ed; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 2px solid white; flex-shrink: 0; }
+    .avatar.cat-avatar { background: #fce4ec; animation: gentleBob 2s infinite ease-in-out; }
+    .avatar.user-avatar { background: #d9e6ff; font-size: 24px; }
+    .bubble { background: white; padding: 10px 14px; border-radius: 22px 22px 22px 8px; color: #5e3e4a; font-size: 14px; line-height: 1.5; word-break: break-word; border: 1px solid #ffd9e6; }
+    .message.user .bubble { background: #ffd9e6; border-radius: 22px 22px 8px 22px; color: #4d2e3a; border: 1px solid #ffb8d0; }
+    .narration { align-self: center; max-width: 90%; text-align: center; font-size: 12px; color: #b48a9c; font-style: italic; padding: 6px 12px; margin: 2px 0; line-height: 1.6; animation: fadeIn 0.6s ease; }
+    .narration::before { content: '· '; color: #ffb8d0; }
+    .narration::after { content: ' ·'; color: #ffb8d0; }
+    .input-area { background: #ffe2ed; padding: 10px 14px 14px; display: flex; gap: 8px; align-items: center; border-top: 1px solid #ffc1d4; flex-shrink: 0; position: relative; z-index: 20; }
+    .input-area input { flex: 1; border: none; background: #fff9fc; padding: 12px 18px; border-radius: 40px; outline: none; font-size: 15px; color: #5e3e4a; border: 1px solid #ffb8d0; min-width: 0; }
+    .input-area input::placeholder { color: #d9a7b9; font-weight: 300; }
+    .input-area button { background: #ffb0c8; border: none; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #ff97b4; flex-shrink: 0; }
+    .input-area button:active { transform: scale(0.92); background: #ff95b2; }
+    .bear-rain { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 10; }
+    .bear { position: absolute; top: -30px; font-size: 26px; opacity: 0.35; animation: fall linear infinite; }
+    @keyframes fall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 0.35; } 100% { transform: translateY(780px) rotate(360deg); opacity: 0.08; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes gentleBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fce4ec; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; border-radius: 40px; transition: opacity 0.5s ease; padding: 24px; text-align: center; overflow-y: auto; }
+    .overlay.hide { opacity: 0; pointer-events: none; visibility: hidden; }
+    .phone-home { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; width: 100%; min-height: 100%; position: relative; }
+    .home-icons { position: absolute; top: 30px; left: 0; right: 0; display: flex; justify-content: space-around; opacity: 0.22; filter: blur(1.5px); }
+    .fake-icon { width: 46px; height: 46px; background: #fff; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .cat-app-icon { width: 100px; height: 100px; background: linear-gradient(145deg, #ffe0ec, #ffb6d0); border-radius: 26px; display: flex; align-items: center; justify-content: center; font-size: 54px; position: relative; border: 2px solid #fff; animation: appPop 0.8s cubic-bezier(0.175,0.885,0.32,1.275) both, wiggle 3s ease-in-out 1.2s infinite; margin-top: 40px; }
+    @keyframes appPop { 0% { transform: scale(0) rotate(-40deg); opacity: 0; } 65% { transform: scale(1.18) rotate(8deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+    @keyframes wiggle { 0%,88%,100% { transform: rotate(0deg); } 90% { transform: rotate(-7deg); } 92% { transform: rotate(7deg); } 94% { transform: rotate(-5deg); } 96% { transform: rotate(5deg); } 98% { transform: rotate(0deg); } }
+    .icon-badge { position: absolute; top: -6px; right: -6px; background: #ff5f8f; color: white; font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 20px; border: 2px solid #fff; animation: badgePop 0.5s 1s both; }
+    @keyframes badgePop { from { transform: scale(0); } to { transform: scale(1); } }
+    .app-name { font-size: 14px; color: #b34e6b; font-weight: 700; letter-spacing: 1px; animation: fadeInUp 0.5s 0.6s both; }
+    .dialog-bubble { background: #fff; border-radius: 20px; padding: 12px 20px; font-size: 14px; color: #b34e6b; position: relative; max-width: 250px; border: 2px solid #ffd9e6; animation: fadeInUp 0.5s 1.1s both; line-height: 1.5; margin-top: 6px; }
+    .dialog-bubble::before { content: ''; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 9px solid #ffd9e6; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .btn-macaron { background: linear-gradient(145deg, #ffbcd3, #ff9dbb); border: none; padding: 15px 36px; border-radius: 50px; font-size: 17px; font-weight: 700; color: white; cursor: pointer; border: 2px solid #fff; letter-spacing: 1px; }
+    .btn-macaron:active { transform: scale(0.95); background: #ff95b2; }
+    .gift-box { position: relative; display: flex; align-items: center; justify-content: center; animation: boxShake 1.8s ease-in-out infinite; margin-bottom: 10px; }
+    @keyframes boxShake { 0%,100% { transform: rotate(0deg) scale(1); } 20% { transform: rotate(-2.5deg) scale(1.015); } 40% { transform: rotate(2deg) scale(1); } 60% { transform: rotate(-2deg) scale(1.015); } 80% { transform: rotate(1.5deg) scale(1); } }
+    .gift-emoji { font-size: 190px; line-height: 1; position: relative; z-index: 2; }
+    .gift-box.opening { animation: boxOpen 0.65s cubic-bezier(0.4,0,0.2,1) forwards; }
+    @keyframes boxOpen { 0% { transform: scale(1) rotate(0deg); opacity: 1; } 35% { transform: scale(1.18) rotate(-5deg); opacity: 1; } 100% { transform: scale(1.7) rotate(8deg); opacity: 0; } }
+    .box-hint { color: #b34e6b; font-size: 14px; font-weight: 600; margin-bottom: 6px; animation: fadeInUp 0.6s both; line-height: 1.6; }
+    .cat-reveal { position: relative; display: flex; flex-direction: column; align-items: center; animation: catRise 0.9s cubic-bezier(0.175,0.885,0.32,1.275) both; margin-bottom: 6px; }
+    @keyframes catRise { 0% { transform: translateY(90px) scale(0.5); opacity: 0; } 60% { transform: translateY(-12px) scale(1.06); opacity: 1; } 80% { transform: translateY(4px) scale(0.98); } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+    .cat-face { font-size: 116px; line-height: 1; animation: gentleBob 2.4s ease-in-out infinite; }
+    .cat-bow { font-size: 40px; margin-top: -34px; animation: bowBob 2s ease-in-out infinite; }
+    @keyframes bowBob { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-4px) rotate(6deg); } }
+    .sparkle { position: absolute; font-size: 22px; opacity: 0; animation: sparklePop 1.8s ease-in-out infinite; pointer-events: none; }
+    .sparkle.s1 { top: 6%; left: 6%; animation-delay: 0.2s; }
+    .sparkle.s2 { top: 16%; right: 8%; animation-delay: 0.7s; }
+    .sparkle.s3 { bottom: 30%; left: 0%; animation-delay: 1.1s; }
+    .sparkle.s4 { bottom: 38%; right: 2%; animation-delay: 1.5s; }
+    @keyframes sparklePop { 0%,100% { opacity: 0; transform: scale(0.5) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
+    .cat-desc { color: #b34e6b; font-size: 14px; font-weight: 600; line-height: 1.7; background: rgba(255,255,255,0.85); padding: 12px 22px; border-radius: 22px; border: 1px solid #ffd9e6; animation: fadeInUp 0.5s 0.5s both; margin-bottom: 16px; }
+    .naming-box { display: flex; flex-direction: column; gap: 14px; align-items: center; width: 100%; animation: fadeInUp 0.5s 0.7s both; }
+    .naming-box input { width: 82%; padding: 15px 22px; border-radius: 50px; border: 2px solid #ffb8d0; background: white; font-size: 16px; text-align: center; outline: none; color: #5e3e4a; }
+    .naming-box input::placeholder { color: #d9a7b9; font-weight: 300; }
+    .tip-panel { background: #fff; border-radius: 28px; padding: 26px 22px; max-width: 300px; text-align: center; border: 2px solid #ffd9e6; animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
+    .tip-icon { font-size: 44px; margin-bottom: 10px; }
+    .tip-title { font-size: 17px; color: #b34e6b; font-weight: 700; margin-bottom: 10px; }
+    .tip-content { font-size: 13px; color: #9b6b7e; line-height: 1.8; margin-bottom: 20px; }
+    .achievement-popup { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff5fa; border: 3px solid #ffb0c8; border-radius: 40px; padding: 22px 30px; z-index: 200; text-align: center; animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); pointer-events: none; max-width: 280px; }
+    .achievement-popup h3 { font-size: 22px; color: #b34e6b; margin-bottom: 6px; font-weight: 700; }
+    .achievement-popup p { font-size: 14px; color: #9b6b7e; font-weight: 400; line-height: 1.5; }
+    @keyframes popIn { 0% { opacity: 0; transform: translate(-50%, -30%) scale(0.8); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+    .firework { position: absolute; font-size: 24px; animation: fireworkFade 0.8s ease-out forwards; pointer-events: none; z-index: 201; }
+    @keyframes fireworkFade { 0% { opacity: 1; transform: scale(0.5); } 100% { opacity: 0; transform: scale(1.6) translateY(-30px); } }
+    body.keyboard-open { padding: 0; align-items: stretch; }
+    body.keyboard-open .phone-frame { max-width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+    body.keyboard-open .overlay { border-radius: 0; }
+    #saveOverlay { background: rgba(255,240,246,0.96); z-index: 150; justify-content: center; padding: 20px; }
+    .save-panel { background: #fff; border-radius: 28px; padding: 20px 16px; width: 100%; max-width: 340px; max-height: 92%; overflow-y: auto; border: 2px solid #ffd9e6; text-align: left; }
+    .save-title { font-size: 18px; color: #b34e6b; margin-bottom: 4px; text-align: center; font-weight: 700; }
+    .save-subtitle { font-size: 11px; color: #b38b9a; text-align: center; margin-bottom: 16px; }
+    .save-slot { background: #fff5fa; border: 2px solid #ffd9e6; border-radius: 20px; padding: 12px; margin-bottom: 10px; }
+    .save-slot.empty { background: #fdf6f9; border-style: dashed; }
+    .save-slot-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .save-slot-avatar { width: 42px; height: 42px; border-radius: 50%; background: #ffe2ed; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 2px solid #fff; }
+    .save-slot-avatar.empty { background: #f0e0e8; opacity: 0.6; }
+    .save-slot-info { flex: 1; min-width: 0; }
+    .save-slot-name { font-size: 14px; font-weight: 700; color: #b34e6b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .save-slot-name.empty { color: #b38b9a; font-weight: 500; }
+    .save-slot-time { font-size: 11px; color: #b38b9a; margin-top: 2px; }
+    .save-slot-stats { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 11px; color: #9b6b7e; padding: 8px 4px 4px; border-top: 1px dashed #ffd9e6; margin-top: 4px; }
+    .save-slot-btns { display: flex; gap: 6px; margin-top: 8px; }
+    .save-btn { flex: 1; padding: 8px 0; border-radius: 14px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .save-btn-load { background: #ffb0c8; color: white; }
+    .save-btn-overwrite { background: #c9e3ff; color: #4d6b8a; }
+    .save-btn-delete { background: #ffe2e2; color: #b34e6b; }
+    .save-btn-save { background: linear-gradient(145deg, #ffbcd3, #ff9dbb); color: white; }
+    .save-panel-footer { display: flex; gap: 8px; margin-top: 14px; }
+    .save-panel-footer .btn-macaron { flex: 1; padding: 12px 0; font-size: 14px; }
+    .btn-reset { background: #ffe2e2; color: #b34e6b; border: 2px solid #ffd0d0; }
+    .save-empty-hint { font-size: 12px; color: #b38b9a; text-align: center; padding: 4px 0; font-style: italic; }
+</style>
+</head>
+<body>
+<div class="phone-frame" id="phoneFrame">
+    <div class="bear-rain" id="bearRain"></div>
+    <div class="status-bar">
+        <span id="statusTime">--:--</span>
+        <button class="save-mini-btn" id="saveOpenBtn" title="存档">&#128190;</button>
+        <span id="statusBattery">&#128267; --%</span>
+    </div>
+    <div class="stats-panel">
+        <div class="stat-item"><span class="stat-icon">&#128564;</span><span>疲劳</span><span class="stat-value" id="fatigueVal">0</span></div>
+        <div class="stat-item"><span class="stat-icon">&#128522;</span><span>心情</span><span class="stat-value" id="moodVal">0</span></div>
+        <div class="stat-item"><span class="stat-icon">&#127834;</span><span>饥饿</span><span class="stat-value" id="hungerVal">0</span></div>
+        <div class="stat-item"><span class="stat-icon">&#129532;</span><span>清洁</span><span class="stat-value" id="cleanVal">0</span></div>
+        <div class="stat-item"><span class="stat-icon">&#128150;</span><span>好感</span><span class="stat-value" id="affectionVal">0</span></div>
+    </div>
+    <div class="chat-container" id="chatContainer"></div>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="和猫猫说点什么吧..." autocomplete="off">
+        <button id="sendBtn">&#128062;</button>
+    </div>
+    <div class="overlay" id="overlay1">
+        <div class="phone-home">
+            <div class="home-icons">
+                <div class="fake-icon">&#128247;</div>
+                <div class="fake-icon">&#127925;</div>
+                <div class="fake-icon">&#128172;</div>
+                <div class="fake-icon">&#9881;&#65039;</div>
+            </div>
+            <div class="cat-app-icon">&#128049;<div class="icon-badge">新</div></div>
+            <div class="app-name">喵呜养成</div>
+            <div class="dialog-bubble">咦？手机里怎么多了一个<br>猫猫头像的APP...</div>
+            <button class="btn-macaron" id="openAppBtn" style="animation: fadeInUp 0.5s 1.5s both;">点一下试试</button>
+        </div>
+    </div>
+    <div class="overlay hide" id="overlay2">
+        <div class="gift-box" id="giftBox">
+            <div class="gift-emoji">&#127873;</div>
+        </div>
+        <p class="box-hint">一个盒子出现在屏幕中<br>占满了整个屏幕...</p>
+        <button class="btn-macaron" id="openBoxBtn">点击打开盒子</button>
+    </div>
+    <div class="overlay hide" id="overlay3">
+        <div class="cat-reveal">
+            <span class="sparkle s1">&#10024;</span>
+            <span class="sparkle s2">&#128151;</span>
+            <span class="sparkle s3">&#10024;</span>
+            <span class="sparkle s4">&#127800;</span>
+            <div class="cat-face">&#128049;</div>
+            <div class="cat-bow">&#127872;</div>
+        </div>
+        <div class="cat-desc">一只黑白相间的猫猫<br>脖子上别着粉色蝴蝶结</div>
+        <div class="naming-box">
+            <input type="text" id="catNameInput" placeholder="给它取个名字吧" maxlength="10" autocomplete="off">
+            <button class="btn-macaron" id="confirmNameBtn">就叫这个名字</button>
+        </div>
+    </div>
+    <div class="overlay hide" id="overlayTip">
+        <div class="tip-panel">
+            <div class="tip-icon">&#128161;</div>
+            <div class="tip-title">小提示</div>
+            <div class="tip-content">
+                这是一只非实时智能 AI 猫猫，<br>
+                仅支持日常话题对话喵～<br>
+                有 bug 请多多见谅 &#128062;
+            </div>
+            <button class="btn-macaron" id="tipConfirmBtn">我已知晓</button>
+        </div>
+    </div>
+    <div class="overlay hide" id="saveOverlay">
+        <div class="save-panel">
+            <div class="save-title">&#128190; 存档管理</div>
+            <div class="save-subtitle">保存在本机浏览器 · 换设备不通用</div>
+            <div id="saveSlots"></div>
+            <div class="save-panel-footer">
+                <button class="btn-macaron btn-reset" id="resetBtn">重新开始</button>
+                <button class="btn-macaron" id="closeSaveBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+    <div id="achievementContainer"></div>
+</div>
+
+<script>
+(function() {
+    let catName = "猫猫";
+    let stats = { fatigue: 0, mood: 0, hunger: 0, clean: 0, affection: 0 };
+    let lastAchievement = "";
+    let chatActive = false;
+    let lowBatteryNotified = false;
+    let chatHistory = [];
+
+    const SAVE_KEY = 'catGameSaves_v1';
+    const AUTO_KEY = 'catGameAuto_v1';
+
+    const overlay1 = document.getElementById('overlay1');
+    const overlay2 = document.getElementById('overlay2');
+    const overlay3 = document.getElementById('overlay3');
+    const overlayTip = document.getElementById('overlayTip');
+    const saveOverlay = document.getElementById('saveOverlay');
+    const chatContainer = document.getElementById('chatContainer');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const phoneFrame = document.getElementById('phoneFrame');
+    const catNameInput = document.getElementById('catNameInput');
+    const giftBox = document.getElementById('giftBox');
+
+    const fatigueVal = document.getElementById('fatigueVal');
+    const moodVal = document.getElementById('moodVal');
+    const hungerVal = document.getElementById('hungerVal');
+    const cleanVal = document.getElementById('cleanVal');
+    const affectionVal = document.getElementById('affectionVal');
+
+    const catEmojis = ['&#128049;','&#128570;','&#128568;','&#128571;','&#128575;','&#128576;','&#128574;','&#128008;','&#128008;&#8205;&#11035;','&#128049;&#8205;&#128100;'];
+
+    function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function updateStatsUI() {
+        fatigueVal.textContent = Math.round(stats.fatigue);
+        moodVal.textContent = Math.round(stats.mood);
+        hungerVal.textContent = Math.round(stats.hunger);
+        cleanVal.textContent = Math.round(stats.clean);
+        affectionVal.textContent = Math.round(stats.affection);
+    }
+
+    function addMessage(sender, text, isHtml = false, skipHistory = false) {
+        if (!skipHistory) chatHistory.push({ sender, text, isHtml });
+        if (sender === 'narration') {
+            const div = document.createElement('div');
+            div.className = 'narration';
+            div.textContent = text;
+            chatContainer.appendChild(div);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return;
+        }
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${sender}`;
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = `avatar ${sender === 'cat' ? 'cat-avatar' : 'user-avatar'}`;
+        avatarDiv.innerHTML = sender === 'cat' ? catEmojis[Math.floor(Math.random() * catEmojis.length)] : '&#129489;';
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = 'bubble';
+        if (isHtml) bubbleDiv.innerHTML = text; else bubbleDiv.textContent = text;
+        msgDiv.appendChild(avatarDiv);
+        msgDiv.appendChild(bubbleDiv);
+        chatContainer.appendChild(msgDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function addNarration(text) { addMessage('narration', text); }
+
+    function showAchievement(title, description) {
+        if (!chatActive) return;
+        if (lastAchievement === title) return;
+        lastAchievement = title;
+        const container = document.getElementById('achievementContainer');
+        const popup = document.createElement('div');
+        popup.className = 'achievement-popup';
+        popup.innerHTML = `<h3>&#10024; ${title} &#10024;</h3><p>—— ${description}</p>`;
+        container.appendChild(popup);
+        const fireworkIcons = ['&#127878;','&#127879;','&#10024;','&#127775;','&#128165;','&#127800;','&#128150;'];
+        for (let i = 0; i < 8; i++) {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            firework.innerHTML = fireworkIcons[Math.floor(Math.random() * fireworkIcons.length)];
+            const rect = phoneFrame.getBoundingClientRect();
+            firework.style.left = Math.random() * rect.width * 0.8 + rect.width * 0.1 + 'px';
+            firework.style.top = Math.random() * rect.height * 0.6 + rect.height * 0.2 + 'px';
+            phoneFrame.appendChild(firework);
+            setTimeout(() => firework.remove(), 800);
+        }
+        setTimeout(() => {
+            popup.style.transition = 'opacity 0.5s';
+            popup.style.opacity = '0';
+            setTimeout(() => popup.remove(), 500);
+        }, 2800);
+    }
+
+    function checkAffectionAchievement() {
+        if (!chatActive) return;
+        const aff = stats.affection;
+        let title = '', desc = '';
+        if (aff <= 0) { title = '警戒哈气'; desc = '猫咪对你充满警惕，还在慢慢观察你。'; }
+        else if (aff <= 30) { title = '保持距离'; desc = '不亲近但也不排斥，愿意和你待在一个空间里。'; }
+        else if (aff <= 60) { title = '允许触碰'; desc = '愿意让你摸摸头，偶尔会主动靠近蹭一蹭。'; }
+        else if (aff <= 80) { title = '呼噜踩奶'; desc = '在你身边完全放松，会发出呼噜声，甚至翻肚皮。'; }
+        else if (aff <= 100) { title = '专属黏人喵'; desc = '走到哪跟到哪，把你当成唯一的依靠，随时求抱抱。'; }
+        if (title && lastAchievement !== title) showAchievement(title, desc);
+    }
+
+    function loadSaves() {
+        try {
+            const data = localStorage.getItem(SAVE_KEY);
+            const arr = data ? JSON.parse(data) : [null, null, null];
+            while (arr.length < 3) arr.push(null);
+            return arr.slice(0, 3);
+        } catch(e) { return [null, null, null]; }
+    }
+    function persistSaves(saves) { try { localStorage.setItem(SAVE_KEY, JSON.stringify(saves)); } catch(e) {} }
+    function autoSave() {
+        if (!chatActive) return;
+        try {
+            localStorage.setItem(AUTO_KEY, JSON.stringify({
+                catName, stats: {...stats}, chatHistory: chatHistory.slice(-200),
+                lastAchievement, savedAt: Date.now(), chatActive: true
+            }));
+        } catch(e) {}
+    }
+    function tryAutoLoad() {
+        try {
+            const data = localStorage.getItem(AUTO_KEY);
+            if (!data) return false;
+            const save = JSON.parse(data);
+            if (!save || !save.chatActive) return false;
+            catName = save.catName || '猫猫';
+            Object.assign(stats, save.stats || {});
+            chatHistory = save.chatHistory || [];
+            lastAchievement = save.lastAchievement || '';
+            chatActive = true;
+            overlay1.classList.add('hide');
+            overlay2.classList.add('hide');
+            overlay3.classList.add('hide');
+            overlayTip.classList.add('hide');
+            chatContainer.innerHTML = '';
+            chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isHtml, true));
+            updateStatsUI();
+            return true;
+        } catch(e) { return false; }
+    }
+    function saveToSlot(index) {
+        if (!chatActive) return;
+        const saves = loadSaves();
+        saves[index] = { catName, stats: {...stats}, chatHistory: chatHistory.slice(-200), lastAchievement, savedAt: Date.now() };
+        persistSaves(saves);
+        renderSavePanel();
+    }
+    function loadFromSlot(index) {
+        const saves = loadSaves();
+        const save = saves[index];
+        if (!save) return;
+        catName = save.catName || '猫猫';
+        Object.assign(stats, save.stats || {});
+        chatHistory = save.chatHistory || [];
+        lastAchievement = save.lastAchievement || '';
+        chatActive = true;
+        overlay1.classList.add('hide'); overlay2.classList.add('hide'); overlay3.classList.add('hide');
+        saveOverlay.classList.add('hide');
+        chatContainer.innerHTML = '';
+        chatHistory.forEach(msg => addMessage(msg.sender, msg.text, msg.isHtml, true));
+        updateStatsUI();
+        autoSave();
+    }
+    function deleteSlot(index) {
+        const saves = loadSaves();
+        saves[index] = null;
+        persistSaves(saves);
+        renderSavePanel();
+    }
+    function formatTime(ts) {
+        const d = new Date(ts);
+        const now = new Date();
+        const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        if (sameDay) return `今天 ${hh}:${mm}`;
+        return `${d.getMonth()+1}/${d.getDate()} ${hh}:${mm}`;
+    }
+    function renderSavePanel() {
+        const saves = loadSaves();
+        const container = document.getElementById('saveSlots');
+        container.innerHTML = '';
+        saves.forEach((save, i) => {
+            const slot = document.createElement('div');
+            slot.className = 'save-slot' + (save ? '' : ' empty');
+            if (save) {
+                const s = save.stats || {};
+                const msgCount = (save.chatHistory || []).length;
+                slot.innerHTML = `
+                    <div class="save-slot-head">
+                        <div class="save-slot-avatar">&#128049;</div>
+                        <div class="save-slot-info">
+                            <div class="save-slot-name">${escapeHtml(save.catName || '猫猫')}</div>
+                            <div class="save-slot-time">存档 ${i+1} · ${formatTime(save.savedAt)}</div>
+                        </div>
+                    </div>
+                    <div class="save-slot-stats">
+                        <span>&#128150; ${Math.round(s.affection||0)}</span>
+                        <span>&#128522; ${Math.round(s.mood||0)}</span>
+                        <span>&#128564; ${Math.round(s.fatigue||0)}</span>
+                        <span>&#127834; ${Math.round(s.hunger||0)}</span>
+                        <span>&#129532; ${Math.round(s.clean||0)}</span>
+                        <span>&#128172; ${msgCount}</span>
+                    </div>
+                    <div class="save-slot-btns">
+                        <button class="save-btn save-btn-load" data-action="load" data-slot="${i}">读取</button>
+                        <button class="save-btn save-btn-overwrite" data-action="overwrite" data-slot="${i}">覆盖</button>
+                        <button class="save-btn save-btn-delete" data-action="delete" data-slot="${i}">删除</button>
+                    </div>`;
+            } else {
+                slot.innerHTML = `
+                    <div class="save-slot-head">
+                        <div class="save-slot-avatar empty">&#128190;</div>
+                        <div class="save-slot-info">
+                            <div class="save-slot-name empty">空存档 ${i+1}</div>
+                            <div class="save-slot-time">还没有保存过</div>
+                        </div>
+                    </div>
+                    <div class="save-empty-hint">点下方按钮把当前进度存到这里</div>
+                    <divclass="save-slot-btns">
+                        <button class="save-btn save-btn-save" data-action="save" data-slot="${i}">保存到此</button>
+                    </div>`;
+            }
+            container.appendChild(slot);
+        });
+        container.querySelectorAll('button[data-action]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const action = btn.dataset.action;
+                const slot = parseInt(btn.dataset.slot);
+                if (action === 'save' || action === 'overwrite') {
+                    saveToSlot(slot);
+                    addMessage('cat', '（把爪子按在屏幕上）...记住了喵。', false, true);
+                } else if (action === 'load') loadFromSlot(slot);
+                else if (action === 'delete') { if (confirm('确定删除这个存档吗？')) deleteSlot(slot); }
+            });
+        });
+    }
+    function openSavePanel() { if (!chatActive) { alert('先进游戏再存档喵~'); return; } renderSavePanel(); saveOverlay.classList.remove('hide'); }
+    function closeSavePanel() { saveOverlay.classList.add('hide'); }
+
+    function analyzeText(text) {
+        const t = text.toLowerCase();
+        const a = {
+            raw: text, isQuestion: false, isGreeting: false, aboutCat: false,
+            mentionsWeather: false, mentionsWork: false, mentionsStudy: false,
+            mentionsFood: false, mentionsFeed: false, mentionsSleep: false, mentionsPlay: false,
+            mentionsMusic: false, mentionsMovie: false, mentionsLove: false,
+            mentionsUser: false, isTeasing: false, isDemanding: false, isInsulting: false,
+            isAskingCatEat: false, isUserNotEat: false,
+            mentionsDate: false, mentionsWeekend: false, mentionsPet: false,
+            mentionsFriend: false, mentionsShop: false, mentionsBook: false,
+            mentionsSport: false, mentionsTravel: false, mentionsAnime: false,
+            mentionsCatLike: false, mentionsMiss: false, mentionsGoodnight: false,
+            mentionsGoodmorning: false, isPetting: false,
+            emotion: null, topicWord: ''
+        };
+
+        // 摸猫
+        if (/摸摸|摸头|摸你|摸我|摸一下|rua|撸猫|撸你|顺毛|挠下巴|挠痒/.test(t)) a.isPetting = true;
+
+        // 喂猫
+        if (/喂你|喂我|投喂|给你吃|给你买|请你吃|买给你|猫粮|猫罐头|小鱼干|冻干/.test(t)) a.mentionsFeed = true;
+
+        // 问猫吃饭
+        if (!a.mentionsFeed && /你.*(吃|饭|饿|饱)|吃了没|吃了吗|吃饭了吗|饿不饿|饿了吗|吃饱了吗/.test(t)) a.isAskingCatEat = true;
+        // 用户自己没吃
+        if (!a.mentionsFeed && /我.*(没吃|还没吃|不吃|没胃口|没吃饭)|我不饿/.test(t)) a.isUserNotEat = true;
+
+        // 问候
+        if (/^(你好|hi|hello|嗨|喂|在吗|在不在|哈喽)/i.test(t) && !/吃|粮|饭|喂你|喂我|喝/.test(t)) a.isGreeting = true;
+        if (/早上好|早安|早哇/.test(t)) a.mentionsGoodmorning = true;
+        if (/晚上好|晚安|要睡了|我睡啦/.test(t)) a.mentionsGoodnight = true;
+
+        if (/[?？]|什么|为什么|怎么|是不是|能不能|可不可以|好不好|吗$|吗？|呢$|呢？/.test(t)) a.isQuestion = true;
+        if (/你|猫猫|猫咪|喵|名字|几岁|多大/.test(t)) a.aboutCat = true;
+        if (/我|主人|铲屎官/.test(t)) a.mentionsUser = true;
+
+        // 天气（去掉单独的“冷/热/闷”，避免“冷漠”误判）
+        if (/天气|下雨|下雪|晴天|阴天|太阳|台风|刮风|好冷|好热|好闷|有点冷|有点热|降温|升温/.test(t)) { a.mentionsWeather = true; a.topicWord = a.topicWord || '天气'; }
+        if (/上班|工作|加班|老板|同事|项目|会议|下班|公司|客户|打工/.test(t)) { a.mentionsWork = true; a.topicWord = a.topicWord || '工作'; }
+        if (/学习|作业|考试|上课|老师|学校|复习|成绩|论文/.test(t)) { a.mentionsStudy = true; a.topicWord = a.topicWord || '学习'; }
+        if (/吃饭|饿|好吃|美食|外卖|零食|饭|菜|早餐|午餐|晚餐|喝|奶茶|咖啡/.test(t) && !a.isAskingCatEat && !a.isUserNotEat && !a.mentionsFeed) { a.mentionsFood = true; a.topicWord = a.topicWord || '吃'; }
+        if (/睡觉|困|休息|枕头|做梦|失眠/.test(t)) { a.mentionsSleep = true; a.topicWord = a.topicWord || '睡觉'; }
+        if (/游戏|打游戏|玩/.test(t)) { a.mentionsPlay = true; a.topicWord = a.topicWord || '玩'; }
+        if (/音乐|歌|听歌|唱歌|专辑|演唱会/.test(t)) { a.mentionsMusic = true; a.topicWord = a.topicWord || '音乐'; }
+        if (/电影|电视剧|追剧|综艺|番剧/.test(t)) { a.mentionsMovie = true; a.topicWord = a.topicWord || '剧'; }
+        if (/喜欢你|爱你|想你|抱抱|亲亲|么么/.test(t)) { a.mentionsLove = true; }
+        if (/几点|日期|今天几号|星期几/.test(t)) { a.mentionsDate = true; }
+        if (/周末|假期|放假|休息日/.test(t)) { a.mentionsWeekend = true; }
+        if (/宠物|小动物|狗狗|仓鼠|兔兔/.test(t)) { a.mentionsPet = true; }
+        if (/朋友|闺蜜|兄弟|同学|家人|爸妈|妈|爸/.test(t)) { a.mentionsFriend = true; }
+        if (/买东西|购物|逛街|网购|快递|买了/.test(t)) { a.mentionsShop = true; }
+        if (/看书|读书|小说|漫画|书/.test(t)) { a.mentionsBook = true; }
+        if (/跑步|健身|运动|打球|游泳/.test(t)) { a.mentionsSport = true; }
+        if (/旅行|出去玩|旅游|出门|散步/.test(t)) { a.mentionsTravel = true; }
+        if (/动漫|二次元|cos|角色|番剧/.test(t)) { a.mentionsAnime = true; }
+        if (/你喜欢什么|最爱什么|喜欢吃什么|喜欢玩什么/.test(t)) { a.mentionsCatLike = true; }
+        if (/想我没|想不想我|有没有想我/.test(t)) { a.mentionsMiss = true; }
+
+        // 情绪
+        if (/难过|伤心|哭|不开心|委屈|失落|沮丧|emo|绝望|烦心/.test(t)) a.emotion = 'sad';
+        else if (/生气|愤怒|讨厌|烦死|气死|恼|火大/.test(t)) a.emotion = 'angry';
+        else if (/开心|高兴|快乐|哈哈|爽|舒服|好耶|太好了|兴奋|激动/.test(t)) a.emotion = 'happy';
+        else if (/累|疲惫|疲倦|撑不住|好累|乏/.test(t)) a.emotion = 'tired';
+        else if (/无聊|没意思|无趣|发呆/.test(t)) a.emotion = 'bored';
+        else if (/害怕|怕|恐怖|吓|惊/.test(t)) a.emotion = 'scared';
+        else if (/孤单|寂寞|一个人|孤独|没人/.test(t)) a.emotion = 'lonely';
+
+        if (/逗你|逗逗|逗猫|抓你|抓我|来抓|追你|追我|扑我|扑过来|挠你|挠我|戳你|戳我|捏你|捏我|拍你|拍我|抓一下|戳一下/.test(t)) a.isTeasing = true;
+        if (/喵一个|叫一声|喵一声|喵一下|打个滚|翻肚皮|踩奶|抱抱|抱一下|亲亲|舔一下|甩个尾巴|摇尾巴|伸个懒腰/.test(t)) a.isDemanding = true;
+        if (/笨蛋|傻瓜|蠢|笨|猪|狗|滚|讨厌你|烦人|坏猫|臭猫|欠揍|傻猫/.test(t)) a.isInsulting = true;
+
+        return a;
+    }
+
+    function toneLevel() {
+        const aff = stats.affection;
+        if (aff <= 0) return 'hostile';
+        if (aff <= 30) return 'distant';
+        if (aff <= 60) return 'okay';
+        if (aff <= 80) return 'close';
+        return 'clingy';
+    }
+
+    function generateSmartReply(a) {
+        const tone = toneLevel();
+        let thought = '', reply = '';
+
+        // 摸猫专用（最高优先级，独立于好感互动）
+        if (a.isPetting) {
+            if (tone === 'hostile') { thought = '（脖子往后缩了一点）'; reply = '...先别摸。我们还没那么熟。'; }
+            else if (tone === 'distant') { thought = '（微微偏头看你）'; reply = '...嗯。就摸一下。'; }
+            else if (tone === 'okay') { thought = '（半眯起眼睛，尾巴轻摆）'; reply = '...哼，勉强让你摸摸。手别乱动。'; }
+            else if (tone === 'close') { thought = '（主动把脑袋凑过来）'; reply = '这里...对，耳朵后面。舒服喵。'; }
+            else { thought = '（整个人瘫在你手心里）'; reply = '呜...再多摸一会儿嘛...你手好暖。'; }
+            return { thought, reply };
+        }
+
+        // 想我没
+        if (a.mentionsMiss) {
+            if (tone === 'hostile') { thought = '（耳朵抖了一下）'; reply = '...才没有。'; }
+            else if (tone === 'distant') { thought = '（假装不在意）'; reply = '...一点点吧。'; }
+            else if (tone === 'okay') { thought = '（尾巴轻轻摆）'; reply = '嗯...有想你。'; }
+            else if (tone === 'close') { thought = '（凑过来蹭你）'; reply = '想啊...你怎么才回来。'; }
+            else { thought = '（一头扎进你怀里）'; reply = '想死你了！你不在的时候我一直在等你喵~！'; }
+            return { thought, reply };
+        }
+
+        // 问猫喜欢什么
+        if (a.mentionsCatLike) {
+            if (tone === 'hostile') { thought = '（扭头）'; reply = '...我不告诉你。'; }
+            else if (tone === 'distant') { thought = '（想了想）'; reply = '...晒太阳、睡觉。就这些。'; }
+            else if (tone === 'okay') { thought = '（眼睛亮了一下）'; reply = '喜欢小鱼干，还喜欢...你摸我头的时候。'; }
+            else { thought = '（蹭了蹭你的手）'; reply = '喜欢你呀！还有小鱼干、纸箱子、太阳晒过的被子...还有你摸我头的时候喵~'; }
+            return { thought, reply };
+        }
+
+        // 打招呼
+        if (a.isGreeting) {
+            if (tone === 'hostile') { thought = '（瞥了你一眼）'; reply = '...嗯，你好。'; }
+            else if (tone === 'distant') { thought = '（抬起头看了你一下）'; reply = '...你好。有什么事吗？'; }
+            else if (tone === 'okay') { thought = '（尾巴晃了晃）'; reply = '喵，你好呀。今天想干嘛？'; }
+            else if (tone === 'close') { thought = '（慢悠悠走过来）'; reply = '你来啦~ 等你有一会儿了喵。'; }
+            else { thought = '（立刻蹦到你面前）'; reply = '你终于来了！我都想你了喵~！'; }
+            return { thought, reply };
+        }
+
+        // 问猫自己
+        if (a.aboutCat && a.isQuestion) {
+            if (/名字|叫什么/.test(a.raw)) { thought = '（歪头看你）'; reply = `我叫${catName}...你不是自己取的吗？`; return { thought, reply }; }
+            if (/几岁|多大/.test(a.raw)) { thought = '（用爪子托着下巴）'; reply = '唔...我算不清自己几岁。总之比你小就是了喵。'; return { thought, reply }; }
+            if (/喜欢我吗|爱不爱我/.test(a.raw)) {
+                if (tone === 'hostile') { thought = '（扭头看你）'; reply = '...才认识不久，别问这种问题啦。'; }
+                else if (tone === 'distant') { thought = '（眼神飘向别处）'; reply = '...还行吧。还在观察你。'; }
+                else if (tone === 'okay') { thought = '（尾巴尖轻轻勾了勾）'; reply = '哼，问这种问题...有一点点吧。'; }
+                else if (tone === 'close') { thought = '（蹭了蹭你）'; reply = '喜欢啊...不然我干嘛让你摸。'; }
+                else { thought = '（整只猫扑进你怀里）'; reply = '最喜欢你了！没有之一喵~！'; }
+                return { thought, reply };
+            }
+            if (/在干嘛|在做什么|在干什么/.test(a.raw)) {
+                if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...在发呆。'; }
+                else if (tone === 'distant') { thought = '（趴在窗台）'; reply = '...在晒太阳。'; }
+                else if (tone === 'okay') { thought = '（转过头看你）'; reply = '在看你啊...哦不，在晒太阳。'; }
+                else { thought = '（眼睛亮亮地看着你）'; reply = '在等你说话呀，笨蛋主人。'; }
+                return { thought, reply };
+            }
+        }
+
+        // 被骂（温和化）
+        if (a.isInsulting) {
+            if (tone === 'hostile') { thought = '（把身子往旁边挪了挪）'; reply = '...这样说，我会有点不开心。'; }
+            else if (tone === 'distant') { thought = '（转过头去）'; reply = '...我不想听这个。'; }
+            else if (tone === 'okay') { thought = '（耳朵往下压了压）'; reply = '唔...我有点难过。你哄我一下？'; }
+            else if (tone === 'close') { thought = '（用爪子轻轻碰了碰你的手）'; reply = '坏蛋...我可当真了哦。罚你摸我三下。'; }
+            else { thought = '（委屈地缩成一团）'; reply = '呜...你怎么可以这样说。我不开心了...除非你摸我五下。'; }
+            return { thought, reply };
+        }
+
+        // 喂猫
+        if (a.mentionsFeed) {
+            if (tone === 'hostile') { thought = '（耳朵动了一下，但没过来）'; reply = '...放那儿吧。等一会儿我再看看。'; }
+            else if (tone === 'distant') { thought = '（远远地嗅了嗅）'; reply = '...嗯，先放着。谢谢你。'; }
+            else if (tone === 'okay') { thought = '（小跑过来闻了闻碗）'; reply = '嗯...这次还凑合。下次换个口味喵。'; }
+            else if (tone === 'close') { thought = '（开心地蹭了蹭你的手）'; reply = '谢谢铲屎官！我开动啦~ 你也吃一点嘛。'; }
+            else { thought = '（一头扎进碗里）'; reply = '呜哇好好吃！是全世界最好吃的猫粮！你喂我的都好吃喵~！'; }
+            return { thought, reply };
+        }
+
+        // 问猫吃饭
+        if (a.isAskingCatEat) {
+            if (tone === 'hostile') { thought = '（耳朵竖了一下）'; reply = '...我不太饿。谢谢。'; }
+            else if (tone === 'distant') { thought = '（假装看别处）'; reply = '...吃了。你呢，管好你自己。'; }
+            else if (tone === 'okay') { thought = '（舔了舔嘴角）'; reply = '还没呢...你要是给我拿我就吃。'; }
+            else if (tone === 'close') { thought = '（跑过来蹭你的腿）'; reply = '还没吃！你陪我一起吃好不好喵~'; }
+            else { thought = '（立刻凑到你面前）'; reply = '没吃没吃！你喂我我就吃，你不喂我就饿着...开玩笑的，快给我拿吃的喵~！'; }
+            return { thought, reply };
+        }
+
+        // 用户自己没吃
+        if (a.isUserNotEat) {
+            if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...不吃对身体不好。'; }
+            else if (tone === 'distant') { thought = '（耳朵转了转）'; reply = '...还是吃点吧。'; }
+            else if (tone === 'okay') { thought = '（用爪子碰了碰你的手）'; reply = '不吃饭怎么行...去吃点东西吧，我等你回来。'; }
+            else if (tone === 'close') { thought = '（把脑袋塞进你手心里）'; reply = '不行！你不吃我也不吃，我们都不吃算了。...好啦，去吃点嘛。'; }
+            else { thought = '（整只猫扑过来抱住你的手臂）'; reply = '不可以不吃饭！我会担心的喵！你去吃，我在这儿等你，快去快去！'; }
+            return { thought, reply };
+        }
+
+        // 情绪
+        if (a.emotion === 'sad') {
+            if (tone === 'hostile') { thought = '（耳朵抖了抖）'; reply = '...嗯。我不太会安慰人，但你别太难过了。'; }
+            else if (tone === 'distant') { thought = '（坐在不远处）'; reply = '...怎么了？可以跟我说说。'; }
+            else if (tone === 'okay') { thought = '（走过来蹲在你脚边）'; reply = '不开心的话...要不要摸摸我？一下就好。'; }
+            else if (tone === 'close') { thought = '（用脑袋顶了顶你的手）'; reply = '别难过啦...我在这儿呢。摸摸我，会好一点的喵。'; }
+            else { thought = '（跳到你腿上）'; reply = '呜...别难过嘛。有我在，谁也不许欺负你！要抱抱吗？'; }
+            return { thought, reply };
+        }
+        if (a.emotion === 'angry') {
+            if (tone === 'hostile') { thought = '（往旁边挪了挪）'; reply = '...嗯。生气的话，先深呼吸。'; }
+            else if (tone === 'distant') { thought = '（谨慎地看着你）'; reply = '...冷静点。生气对身体不好。'; }
+            else if (tone === 'okay') { thought = '（歪头）'; reply = '谁惹你了？跟我说，我帮你瞪他喵。'; }
+            else { thought = '（用爪子轻轻拍你的手）'; reply = '别气啦...气坏了我会心疼的。深呼吸，深呼吸喵。'; }
+            return { thought, reply };
+        }
+        if (a.emotion === 'tired') {
+            if (tone === 'hostile') { thought = '（舔了舔爪子）'; reply = '...累了就休息吧。'; }
+            else if (tone === 'distant') { thought = '（看了你一眼）'; reply = '...那你早点休息吧。'; }
+            else if (tone === 'okay') { thought = '（打了个哈欠）'; reply = '累了呀...那我们一起趴会儿吧。'; }
+            else if (tone === 'close') { thought = '（在你腿边趴下）'; reply = '累了就靠着我休息一会儿...我陪你。'; }
+            else { thought = '（整只猫钻进你怀里）'; reply = '那快躺下！我把尾巴借你当枕头...不许推开我喵。'; }
+            return { thought, reply };
+        }
+        if (a.emotion === 'happy') {
+            if (tone === 'hostile') { thought = '（斜眼看你）'; reply = '...看你这么开心，我心情也不错。'; }
+            else if (tone === 'distant') { thought = '（耳朵动了动）'; reply = '...开心就好。'; }
+            else if (tone === 'okay') { thought = '（尾巴晃起来）'; reply = '什么好事呀？说出来我也高兴高兴喵。'; }
+            else { thought = '（跟着一起兴奋）'; reply = '看你这么开心，我也开心！跳一下给你看？'; }
+            return { thought, reply };
+        }
+        if (a.emotion === 'bored') {
+            if (tone === 'hostile') { thought = '（扭头）'; reply = '...那你想干嘛呢。'; }
+            else if (tone === 'distant') { thought = '（打了个哈欠）'; reply = '...我也挺无聊的。'; }
+            else if (tone === 'okay') { thought = '（用爪子拨了拨你的手机）'; reply = '无聊啊...要不要陪我玩一会儿？'; }
+            else { thought = '（叼着玩具小老鼠跑过来）'; reply = '无聊？那陪我玩！我抓到的玩具分你一个喵~'; }
+            return { thought, reply };
+        }
+        if (a.emotion === 'lonely') {
+            if (tone === 'hostile') { thought = '（往旁边挪了挪）'; reply = '...我在这儿呢。'; }
+            else if (tone === 'distant') { thought = '（耳朵转了转）'; reply = '...虽然不想搭理你，但我还在。'; }
+            else if (tone === 'okay') { thought = '（走过来在你脚边坐下）'; reply = '谁说你一个人了...我不是在这儿吗。'; }
+            else { thought = '（整只猫贴过来蹭你）'; reply = '别这么说啦...你有我呀。以后我天天陪着你喵。'; }
+            return { thought, reply };
+        }
+        if (a.emotion === 'scared') {
+            if (tone === 'hostile') { thought = '（耳朵竖起来）'; reply = '...怕什么。我在这儿呢。'; }
+            else if (tone === 'distant') { thought = '（竖起耳朵）'; reply = '...什么吓到你了？'; }
+            else if (tone === 'okay') { thought = '（靠过来一点）'; reply = '别怕别怕...我在呢。'; }
+            else { thought = '（炸毛护在你前面）'; reply = '谁？谁吓你了？我虽然小，但我会保护你的喵！'; }
+            return { thought, reply };
+        }
+
+        // 逗猫
+        if (a.isTeasing) {
+            if (tone === 'hostile') { thought = '（往后跳了一步）'; reply = '...别这样啦。我还没准备好跟你玩。'; }
+            else if (tone === 'distant') { thought = '（往后躲了一下）'; reply = '...再等等。我还没熟。'; }
+            else if (tone === 'okay') { thought = '（用爪子挡了一下）'; reply = '哼...就一次哦。抓不到是正常的，别得意。'; }
+            else if (tone === 'close') { thought = '（眼睛亮起来，压低身体）'; reply = '来呀来呀~ 我盯着你的手呢...诶，抓住了！'; }
+            else { thought = '（整只猫扑过来抱住你的手）'; reply = '抓到你啦！再来一次再来一次嘛喵！'; }
+            return { thought, reply };
+        }
+
+        // 要求动作
+        if (a.isDemanding) {
+            if (/喵一个|叫一声|喵一声|喵一下/.test(a.raw)) {
+                if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...喵。这样可以了吗。'; }
+                else if (tone === 'distant') { thought = '（扭过头）'; reply = '...喵。（小声）'; }
+                else if (tone === 'okay') { thought = '（歪头）'; reply = '喵？...就一声，多了不干。'; }
+                else { thought = '（凑近你）'; reply = '喵~ 喵喵~ 想听多少声都行！'; }
+                return { thought, reply };
+            }
+            if (/打个滚|翻肚皮/.test(a.raw)) {
+                if (tone === 'hostile' || tone === 'distant') { thought = '（眯起眼）'; reply = '...还不行。等我再熟一点。'; }
+                else if (tone === 'okay') { thought = '（犹豫了一下）'; reply = '...就这样，别盯着看。'; }
+                else { thought = '（啪地翻过去，四脚朝天）'; reply = '看！我翻给你看了...摸一下可以，就一下喵。'; }
+                return { thought, reply };
+            }
+            if (/抱抱|抱一下/.test(a.raw)) {
+                if (tone === 'hostile') { thought = '（往后缩）'; reply = '...还不行。'; }
+                else if (tone === 'distant') { thought = '（犹豫）'; reply = '...算了，就一下。'; }
+                else if (tone === 'okay') { thought = '（慢慢走过来）'; reply = '...抱吧。但我随时可以走。'; }
+                else { thought = '（直接跳进你怀里）'; reply = '抱紧紧！不许松开我喵~'; }
+                return { thought, reply };
+            }
+            if (/踩奶|捏捏/.test(a.raw)) {
+                if (tone === 'hostile' || tone === 'distant') { thought = '（把爪子缩回去）'; reply = '...不行啦。'; }
+                else if (tone === 'okay') { thought = '（慢慢伸出一只爪子）'; reply = '...轻轻的，可以。'; }
+                else { thought = '（两只前爪一开一合）'; reply = '嗯...你身上最舒服了喵...'; }
+                return { thought, reply };
+            }
+            if (/亲亲|舔一下/.test(a.raw)) {
+                if (tone === 'hostile' || tone === 'distant') { thought = '（把头转开）'; reply = '...不行。'; }
+                else if (tone === 'okay') { thought = '（迟疑地凑近）'; reply = '...就碰一下，额头。'; }
+                else { thought = '（用鼻尖碰了碰你的脸）'; reply = '啾~ 好了，不许再要求了，我会害羞的喵。'; }
+                return { thought, reply };
+            }
+            if (/摇尾巴|甩个尾巴|伸个懒腰/.test(a.raw)) {
+                if (tone === 'hostile' || tone === 'distant') { thought = '（尾巴僵了一下）'; reply = '...不动。'; }
+                else if (tone === 'okay') { thought = '（尾巴尖轻轻晃了晃）'; reply = '...看到了吧。'; }
+                else { thought = '（尾巴高高翘起）'; reply = '看~ 这样摇好看吗？我练过的喵！'; }
+                return { thought, reply };
+            }
+            if (tone === 'hostile') { thought = '（扭头）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（看了看你）'; reply = '...看心情。'; }
+            else if (tone === 'okay') { thought = '（歪头）'; reply = '...好吧，就一次。'; }
+            else { thought = '（立刻照做）'; reply = '好呀好呀~ 你想让我做什么都行喵！'; }
+            return { thought, reply };
+        }
+
+        // 好感互动
+        if (a.mentionsLove) {
+            if (tone === 'hostile') { thought = '（耳朵往后压）'; reply = '...我们才刚认识。别说这种话啦。'; }
+            else if (tone === 'distant') { thought = '（眼神躲闪）'; reply = '...嗯，我知道。'; }
+            else if (tone === 'okay') { thought = '（尾巴慢慢摇）'; reply = '...我也...有一点点喜欢你啦。就一点点。'; }
+            else if (tone === 'close') { thought = '（蹭了蹭你）'; reply = '嗯...我也是。别说出来，我会害羞的喵。'; }
+            else { thought = '（扑上来抱住你的手）'; reply = '我也最喜欢你了！你是全世界最好的铲屎官喵~！'; }
+            return { thought, reply };
+        }
+
+        // 天气
+        if (a.mentionsWeather) {
+            if (tone === 'hostile') { thought = '（看了眼窗外）'; reply = '...天气还不错。'; }
+            else if (tone === 'distant') { thought = '（耳朵动了动）'; reply = '...嗯，你出门注意点。'; }
+            else if (tone === 'okay') { thought = '（伸了个懒腰）'; reply = '这种天气最适合趴着了...你也别乱跑。'; }
+            else { thought = '（凑到窗边看）'; reply = '那你出门带伞了吗？别淋湿了...我会担心的喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsWork) {
+            if (tone === 'hostile') { thought = '（扭头）'; reply = '...工作辛苦了。'; }
+            else if (tone === 'distant') { thought = '（耳朵转了转）'; reply = '...那你辛苦了。'; }
+            else if (tone === 'okay') { thought = '（歪头看你）'; reply = '上班很累吧...回来就好好歇着。'; }
+            else { thought = '（跳到你腿上）'; reply = '辛苦啦...别太拼了。回来我陪你，什么都不用想喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsStudy) {
+            if (tone === 'hostile') { thought = '（打了个哈欠）'; reply = '...那你加油吧。'; }
+            else if (tone === 'distant') { thought = '（默默看着你）'; reply = '...加油。'; }
+            else if (tone === 'okay') { thought = '（趴在书旁边）'; reply = '学累了就看看我，放松一下喵。'; }
+            else { thought = '（用爪子按住你的笔）'; reply = '先休息一下啦...我陪你一起学。不会的题我也不会，但可以一起发愁喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsFood) {
+            if (tone === 'hostile') { thought = '（耳朵竖了一下）'; reply = '...嗯。你去吃吧。'; }
+            else if (tone === 'distant') { thought = '（假装看别处）'; reply = '...嗯，去吃吧。'; }
+            else if (tone === 'okay') { thought = '（凑过来嗅了嗅）'; reply = '吃什么呀...分我一口？就一口喵。'; }
+            else { thought = '（一路小跑过来蹭你）'; reply = '吃饭？吃什么吃什么！我也要！不给的话我就...撒娇了喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsSleep || a.mentionsGoodnight) {
+            if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...晚安。'; }
+            else if (tone === 'distant') { thought = '（打了个哈欠）'; reply = '...晚安。'; }
+            else if (tone === 'okay') { thought = '（慢悠悠走过来）'; reply = '要睡啦？那我也去趴着了。'; }
+            else { thought = '（跳上床占好位置）'; reply = '晚安喵~ 我给你暖好被子了，快点过来！'; }
+            return { thought, reply };
+        }
+        if (a.mentionsGoodmorning) {
+            if (tone === 'hostile') { thought = '（眯着眼）'; reply = '...早。'; }
+            else if (tone === 'distant') { thought = '（耳朵抖了抖）'; reply = '...早。你起得真早。'; }
+            else if (tone === 'okay') { thought = '（伸了个懒腰）'; reply = '早呀~ 今天打算做什么？'; }
+            else { thought = '（跑过来蹭你的腿）'; reply = '早安喵~ 我等你好久啦！今天也要一起玩哦！'; }
+            return { thought, reply };
+        }
+        if (a.mentionsPlay) {
+            if (tone === 'hostile') { thought = '（尾巴甩了甩）'; reply = '...嗯。你玩吧。'; }
+            else if (tone === 'distant') { thought = '（歪头）'; reply = '...什么游戏？我看看就好。'; }
+            else if (tone === 'okay') { thought = '（眼睛亮了一下）'; reply = '游戏？...我不太懂，但你玩给我看也行喵。'; }
+            else { thought = '（凑过来盯着屏幕）'; reply = '在玩什么呀！那个会动的我要抓！...诶，是屏幕上的，我抓不到喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsMusic) {
+            if (tone === 'hostile') { thought = '（耳朵抖了抖）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（耳朵转了个方向）'; reply = '...什么歌？'; }
+            else if (tone === 'okay') { thought = '（尾巴跟着轻轻晃）'; reply = '好听吗？放给我听听喵。'; }
+            else { thought = '（趴在你旁边）'; reply = '你喜欢的歌我都喜欢...虽然我分不清旋律，但你在听我就开心喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsMovie) {
+            if (tone === 'hostile') { thought = '（扭头）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（瞥了一眼屏幕）'; reply = '...讲什么的？'; }
+            else if (tone === 'okay') { thought = '（趴在你旁边）'; reply = '一起看吧...不许剧透喵。'; }
+            else { thought = '（钻到你怀里）'; reply = '看电影要抱着我！...恐怖镜头我先闭上眼睛，等过了叫我喵。'; }
+            return { thought, reply };
+        }
+        if (a.mentionsDate) {
+            const now = new Date();
+            const dayNames = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+            const today = `${now.getMonth()+1}月${now.getDate()}日 ${dayNames[now.getDay()]}`;
+            if (tone === 'hostile') { thought = '（瞟了一眼日历）'; reply = `今天是${today}。`; }
+            else if (tone === 'distant') { thought = '（抬头看了看）'; reply = `今天是${today}...你问这个干嘛？`; }
+            else if (tone === 'okay') { thought = '（歪头）'; reply = `今天是${today}喵~ 你打算做什么？`; }
+            else { thought = '（凑过来看你的手机）'; reply = `今天是${today}！要不要跟我一起度过今天呀喵~`; }
+            return { thought, reply };
+        }
+        if (a.mentionsWeekend) {
+            if (tone === 'hostile') { thought = '（尾巴动了动）'; reply = '...假期的话，好好休息吧。'; }
+            else if (tone === 'distant') { thought = '（歪头）'; reply = '...嗯。假期愉快。'; }
+            else if (tone === 'okay') { thought = '（伸了个懒腰）'; reply = '假期呀~ 你想做什么呢？我陪你。'; }
+            else { thought = '（兴奋地甩尾巴）'; reply = '耶！假期！我们可以一整天都待在一起喵~！'; }
+            return { thought, reply };
+        }
+        if (a.mentionsPet) {
+            if (tone === 'hostile') { thought = '（耳朵竖起来）'; reply = '...你还有别的宠物吗。'; }
+            else if (tone === 'distant') { thought = '（看着你）'; reply = '...它们可爱吗？'; }
+            else if (tone === 'okay') { thought = '（尾巴晃了晃）'; reply = '听起来好可爱呀...你最喜欢谁？'; }
+            else { thought = '（蹭过来）'; reply = '唔...那我是不是你最喜欢的？要诚实回答哦喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsFriend) {
+            if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（歪头）'; reply = '...他们对你很好吗？'; }
+            else if (tone === 'okay') { thought = '（趴在你旁边）'; reply = '听起来不错呀...替我谢谢他们照顾你。'; }
+            else { thought = '（用脑袋顶你的手）'; reply = '只要他们对你好的话，我就放心啦喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsShop) {
+            if (tone === 'hostile') { thought = '（看了看）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（耳朵动了动）'; reply = '...买了什么好东西吗？'; }
+            else if (tone === 'okay') { thought = '（凑过来看）'; reply = '买了什么呀？给我看看喵。'; }
+            else { thought = '（兴奋地蹦过来）'; reply = '买了什么买了什么！有没有给我带小鱼干！...哦，没有啊。那也没关系喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsBook) {
+            if (tone === 'hostile') { thought = '（瞟了一眼）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（想了想）'; reply = '...好看吗？'; }
+            else if (tone === 'okay') { thought = '（趴在书旁边）'; reply = '在讲什么故事呀？讲给我听喵。'; }
+            else { thought = '（把爪子搭在书上）'; reply = '一起看嘛~ 你读给我听，我听不懂也没关系喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsSport) {
+            if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...嗯，运动挺好的。'; }
+            else if (tone === 'distant') { thought = '（耳朵转了转）'; reply = '...注意别受伤。'; }
+            else if (tone === 'okay') { thought = '（打了个哈欠）'; reply = '运动完记得休息喵...我在这儿等你。'; }
+            else { thought = '（跳过来蹭你）'; reply = '辛苦啦！你身上暖暖的...运动完的你香香的喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsTravel) {
+            if (tone === 'hostile') { thought = '（歪头）'; reply = '...去玩开心点。'; }
+            else if (tone === 'distant') { thought = '（看着你）'; reply = '...注意安全。'; }
+            else if (tone === 'okay') { thought = '（尾巴晃了晃）'; reply = '去哪玩呀？...记得回来就好。'; }
+            else { thought = '（整只猫贴过来）'; reply = '不许去太久！我会想你的...要每天给我发消息喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsAnime) {
+            if (tone === 'hostile') { thought = '（瞟了一眼）'; reply = '...嗯。'; }
+            else if (tone === 'distant') { thought = '（歪头）'; reply = '...好看吗？'; }
+            else if (tone === 'okay') { thought = '（趴在你旁边）'; reply = '在追什么番呀？讲讲剧情喵。'; }
+            else { thought = '（凑过来一起看）'; reply = '我也要看！虽然看不懂，但跟你一起看就开心喵~'; }
+            return { thought, reply };
+        }
+        if (a.mentionsUser && a.isQuestion) {
+            if (tone === 'hostile') { thought = '（眯着眼）'; reply = '...嗯，你说吧。'; }
+            else if (tone === 'distant') { thought = '（想了想）'; reply = '...嗯，怎么了。'; }
+            else if (tone === 'okay') { thought = '（认真看着你）'; reply = '你说说看，我听着呢喵。'; }
+            else { thought = '（凑过来蹭你的脸）'; reply = '不管是什么，你跟我说就对了。我永远站你这边喵。'; }
+            return { thought, reply };
+        }
+        if (a.isQuestion) {
+            if (tone === 'hostile') { thought = '（看了你一眼）'; reply = '...嗯，让我想想。'; }
+            else if (tone === 'distant') { thought = '（歪头）'; reply = '...这个嘛。我还没想好怎么回答。'; }
+            else if (tone === 'okay') { thought = '（眼睛眨巴眨巴）'; reply = '唔...让我想想。你问的这个问题有点难喵。'; }
+            else { thought = '（凑得很近）'; reply = '你问的我都认真听...可是这个我也答不上来，要一起想吗？'; }
+            return { thought, reply };
+        }
+
+        if (tone === 'hostile') { thought = '（尾巴轻轻摆了摆）'; reply = '...嗯，我听着呢。'; }
+        else if (tone === 'distant') { thought = '（瞟了你一眼）'; reply = '...哦。'; }
+        else if (tone === 'okay') { thought = '（歪头听）'; reply = '嗯嗯，我在听喵。'; }
+        else if (tone === 'close') { thought = '（靠过来蹭你）'; reply = '你说的我都记着呢...继续说喵。'; }
+        else { thought = '（眼睛亮亮地盯着你）'; reply = '你说什么我都爱听...多说点嘛，我给你喵一声~'; }
+        return { thought, reply };
+    }
+
+    const kaomojiPool = ['(＝^･ω･^＝)', '(=^･ｪ･^=)', '(^･ω･^ )', '(=①ω①=)', '(=ＴェＴ=)', 'ฅ^•ﻌ•^ฅ', '(=｀ェ´=)'];
+    const strayThoughts = [
+        '（突然盯着墙角发呆，也不知道在看什么）',
+        '（耳朵转了转，好像听到了什么，又好像没有）',
+        '（低头舔了两口爪子，忘了刚刚在想什么）',
+        '（看着窗外的光斑，尾巴无意识地晃了晃）',
+        '（眼睛半眯着，也不知道是醒着还是睡着）',
+        '（脑袋歪过来歪过去，像在思考猫生）',
+        '（突然抖了抖耳朵，抖完愣了一下）'
+    ];
+    const narrationPools = {
+        neutral: [
+            '空气安静了几秒。猫猫的耳朵微微转动，捕捉着房间里每一个细微的声音。',
+            '阳光从窗缝里斜切进来，落在猫猫的背上，像给它镀了一层暖金色的边。',
+            '屏幕之外的时间悄悄流走。一人一猫，就这么隔着光对话。',
+            '窗外的风轻轻吹过，窗帘动了动，猫猫的胡须也跟着抖了一下。',
+            '房间很安静，只有猫猫偶尔发出的细碎声响。',
+            '猫猫眨了眨眼，像在思考什么，又像什么也没想。'
+        ],
+        playful: [
+            '猫猫的眼睛亮了一下，那是属于狩猎者的光。',
+            '爪子在空中抓了个空，但猫猫装作若无其事的样子。',
+            '尾巴兴奋地甩来甩去，差点打到自己的脸。',
+            '猫猫的身体压得低低的，像一张蓄势待发的小弓。'
+        ],
+        cold: [
+            '猫猫没有靠近，只是静静地看着你。那道距离像一道看不见的线。',
+            '空气里有种微妙的距离感。猫猫的瞳孔微微收缩，又在下一秒恢复平静。',
+            '它把身子往旁边挪了挪，动作轻得几乎听不见。',
+            '房间里明明有两个人，却像隔了一小段路。'
+        ],
+        warm: [
+            '猫猫的呼噜声像一台小小的发动机，慢慢充满了整个房间。',
+            '毛茸茸的脑袋轻轻抵着你的手，像是在说"这里可以停一会儿"。',
+            '猫猫眯起眼睛，睫毛在鼻梁上投下一小片阴影。',
+            '你手指上还留着刚才摸过猫猫的温度，淡淡的。',
+            '它大概永远也不会承认，它其实有点喜欢这种被摸头的感觉。',
+            '猫猫的身体蜷成一个完美的圆，尾巴轻轻搭在鼻尖上。'
+        ],
+        stray: [
+            '猫猫突然盯着某个方向看，可那里什么也没有。',
+            '有只小飞虫路过，猫猫的视线追着它转了三秒。',
+            '猫猫打了个哈欠，露出一点点粉色的舌头。',
+            '它的耳朵突然转了一下，像在听远处的什么声音。'
+        ]
+    };
+    const recentPicks = {};
+    function pickRandom(arr, key) {
+        if (!arr || arr.length === 0) return null;
+        if (arr.length === 1) return arr[0];
+        let idx, tries = 0;
+        do { idx = Math.floor(Math.random() * arr.length); tries++; } while (recentPicks[key] === idx && tries < 12);
+        recentPicks[key] = idx;
+        return arr[idx];
+    }
+
+    function processUserInput(text) {
+        if (!text.trim()) return;
+        addMessage('user', text);
+        const lowerText = text.toLowerCase();
+        const a = analyzeText(text);
+        let fatigueDelta = 0, moodDelta = 0, hungerDelta = 0, cleanDelta = 0, affectionDelta = 0;
+
+        if (a.mentionsSleep || a.mentionsGoodnight) fatigueDelta += 12;
+        if (a.mentionsPlay) { moodDelta += 15; fatigueDelta -= 3; }
+        if (a.mentionsFeed || a.mentionsFood) { hungerDelta += 18; moodDelta += 5; }
+        if (/洗|清洁|干净|梳毛|洗澡|擦/.test(lowerText)) cleanDelta += 20;
+        if (a.mentionsLove || a.isPetting || /可爱|喜欢|抱|乖|漂亮|蹭/.test(lowerText)) {
+            if (stats.affection < 20) affectionDelta += 5;
+            else if (stats.affection < 50) affectionDelta += 8;
+            else affectionDelta += 10;
+            moodDelta += 8;
+        }
+        if (a.isTeasing) moodDelta += 10;
+        if (a.isDemanding) moodDelta += 6;
+        if (a.isGreeting && stats.affection > 0) affectionDelta += 1;
+        if (a.isInsulting) { affectionDelta -= 3; moodDelta -= 5; }
+
+        stats.fatigue = clamp(stats.fatigue + fatigueDelta, 0, 100);
+        stats.mood = clamp(stats.mood + moodDelta, 0, 100);
+        stats.hunger = clamp(stats.hunger + hungerDelta, 0, 100);
+        stats.clean = clamp(stats.clean + cleanDelta, 0, 100);
+        stats.affection = clamp(stats.affection + affectionDelta, -20, 100);
+        if (fatigueDelta === 0 && moodDelta === 0 && hungerDelta === 0 && cleanDelta === 0) {
+            stats.hunger = clamp(stats.hunger - 1, 0, 100);
+            stats.clean = clamp(stats.clean - 1, 0, 100);
+            stats.fatigue = clamp(stats.fatigue + 1, 0, 100);
+        }
+        updateStatsUI();
+
+        setTimeout(() => {
+            let { thought, reply } = generateSmartReply(a);
+            if (stats.affection > 0 && Math.random() < 0.15) thought = pickRandom(strayThoughts, 'stray');
+            let fullReply = thought ? `${thought} ${reply}` : reply;
+            if (Math.random() > 0.5) fullReply += ' ' + kaomojiPool[Math.floor(Math.random() * kaomojiPool.length)];
+            addMessage('cat', fullReply);
+            checkAffectionAchievement();
+            autoSave();
+            if (Math.random() < 0.30) {
+                let poolName;
+                const aff = stats.affection;
+                if (a.isTeasing || a.isDemanding || a.mentionsPlay) poolName = 'playful';
+                else if (aff <= 0) poolName = Math.random() < 0.5 ? 'cold' : 'neutral';
+                else if (aff <= 30) poolName = Math.random() < 0.35 ? 'cold' : (Math.random() < 0.5 ? 'neutral' : 'stray');
+                else if (aff <= 60) poolName = Math.random() < 0.4 ? 'warm' : (Math.random() < 0.5 ? 'neutral' : 'stray');
+                else poolName = Math.random() < 0.55 ? 'warm' : (Math.random() < 0.6 ? 'neutral' : 'stray');
+                const line = pickRandom(narrationPools[poolName], 'narr_' + poolName);
+                if (line) setTimeout(() => addNarration(line), 700);
+            }
+        }, 300);
+        userInput.value = '';
+    }
+
+    sendBtn.addEventListener('click', () => {
+        const text = userInput.value;
+        if (text.trim()) processUserInput(text);
+    });
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
+    });
+
+    function initBearRain() {
+        const bearRain = document.getElementById('bearRain');
+        const bearEmojis = ['&#129528;','&#128059;','&#128062;','&#127800;','&#128151;','&#128059;&#8205;&#10052;&#65039;','&#129528;','&#127872;'];
+        for (let i = 0; i < 12; i++) {
+            const bear = document.createElement('div');
+            bear.className = 'bear';
+            bear.innerHTML = bearEmojis[Math.floor(Math.random() * bearEmojis.length)];
+            bear.style.left = Math.random() * 100 + '%';
+            bear.style.animationDuration = (Math.random() * 10 + 12) + 's';
+            bear.style.animationDelay = Math.random() * 10 + 's';
+            bear.style.fontSize = (Math.random() * 14 + 16) + 'px';
+            bearRain.appendChild(bear);
+        }
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('statusTime').textContent = `${h}:${m}`;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    async function initBattery() {
+        const el = document.getElementById('statusBattery');
+        if (!navigator.getBattery) { el.innerHTML = '&#128267; --'; return; }
+        try {
+            const battery = await navigator.getBattery();
+            const render = () => {
+                const level = Math.round(battery.level * 100);
+                const icon = battery.charging ? '&#9889;' : '&#128267;';
+                el.innerHTML = `${icon} ${level}%`;
+                if (chatActive && !battery.charging && stats.affection > 30) {
+                    if (level <= 20 && !lowBatteryNotified) {
+                        lowBatteryNotified = true;
+                        setTimeout(() => addMessage('cat', '铲屎官，你的手机快没电了喵'), 400);
+                    }
+                }
+                if (battery.charging || level > 25) lowBatteryNotified = false;
+            };
+            render();
+            battery.addEventListener('levelchange', render);
+            battery.addEventListener('chargingchange', render);
+        } catch (e) { el.innerHTML = '&#128267; --'; }
+    }
+    initBattery();
+
+    (function setupKeyboardFollow() {
+        if (!window.visualViewport) return;
+        const vv = window.visualViewport;
+        const chatEl = chatContainer;
+        const resetBody = () => {
+            ['position','top','left','right','width','height','minHeight','padding','overflow','alignItems','justifyContent'].forEach(p => document.body.style.removeProperty(p));
+            document.body.classList.remove('keyboard-open');
+        };
+        const adjust = () => {
+            const vvHeight = vv.height;
+            const vvOffsetTop = vv.offsetTop;
+            const keyboardHeight = window.innerHeight - vvHeight;
+            if (keyboardHeight > 120) {
+                document.body.classList.add('keyboard-open');
+                document.body.style.position = 'fixed';
+                document.body.style.top = vvOffsetTop + 'px';
+                document.body.style.left = '0';
+                document.body.style.right = '0';
+                document.body.style.width = '100%';
+                document.body.style.height = vvHeight + 'px';
+                document.body.style.minHeight = '0';
+                document.body.style.padding = '0';
+                document.body.style.overflow = 'hidden';
+            } else resetBody();
+            requestAnimationFrame(() => { chatEl.scrollTop = chatEl.scrollHeight; });
+        };
+        vv.addEventListener('resize', adjust);
+        vv.addEventListener('scroll', adjust);
+        userInput.addEventListener('focus', () => setTimeout(adjust, 120));
+        userInput.addEventListener('blur', () => setTimeout(adjust, 120));
+    })();
+
+    document.getElementById('openAppBtn').addEventListener('click', () => {
+        overlay1.classList.add('hide');
+        overlay2.classList.remove('hide');
+    });
+    document.getElementById('openBoxBtn').addEventListener('click', () => {
+        giftBox.classList.add('opening');
+        setTimeout(() => {
+            overlay2.classList.add('hide');
+            overlay3.classList.remove('hide');
+            setTimeout(() => giftBox.classList.remove('opening'), 650);
+        }, 520);
+    });
+    document.getElementById('confirmNameBtn').addEventListener('click', () => {
+        const inputName = catNameInput.value.trim();
+        catName = inputName || '猫猫';
+        overlay3.classList.add('hide');
+        overlayTip.classList.remove('hide');
+    });
+    document.getElementById('tipConfirmBtn').addEventListener('click', () => {
+        overlayTip.classList.add('hide');
+        chatActive = true;
+        updateStatsUI();
+        checkAffectionAchievement();
+        autoSave();
+        setTimeout(() => { addMessage('cat', `（从盒子里探出脑袋）...你好。我是${catName}。`); }, 300);
+        setTimeout(() => { addMessage('cat', '唔...以后请多关照。虽然我还没完全信任你，但...慢慢来吧。'); }, 1500);
+    });
+    catNameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('confirmNameBtn').click(); }
+    });
+    document.getElementById('saveOpenBtn').addEventListener('click', openSavePanel);
+    document.getElementById('closeSaveBtn').addEventListener('click', closeSavePanel);
+    document.getElementById('resetBtn').addEventListener('click', () => {文档.getElementById('resetBtn').addEventListener('click', () => {
+        if (!confirm('确定重新开始吗？\n当前对话和进度会清空，但【手动存档】会保留喵。')) return;
+        localStorage.removeItem(AUTO_KEY);
+        catName = "猫猫";
+        stats = { fatigue: 0, mood: 0, hunger: 0, clean: 0, affection: 0 };
+        lastAchievement = ""; chatActive = false; lowBatteryNotified = false; chatHistory = [];
+        chatContainer.innerHTML = ''; chatContainer.scrollTop = 0;
+        saveOverlay.classList.add('hide'); overlay2.classList.add('hide'); overlay3.classList.add('hide'); overlayTip.classList.add('hide');
+        overlay1.classList.remove('hide');
+        userInput.value = ''; catNameInput.value = '';
+        updateStatsUI();
+        document.getElementById('bearRain').innerHTML = '';
+        initBearRain();
+    });
+    window.addEventListener('beforeunload', autoSave);
+    setInterval(autoSave, 30000);
+    initBearRain();
+    updateStatsUI();
+    lastAchievement = '';
+    setTimeout(() => { tryAutoLoad(); }, 100);
+})();
+</script>
+</body>
+</html>
